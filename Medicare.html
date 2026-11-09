@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare | Hospital Appointment System</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0d9488;
+            --primary-hover: #0f766e;
+            --bg-main: #f0fdfa;
+            --bg-card: #ffffff;
+            --text-color: #134e4a;
+            --text-muted: #64748b;
+            --border-color: #ccfbf1;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-color);
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #042f2e;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .brand i { color: var(--primary-color); font-size: 1.8rem; }
+        .brand span { color: var(--primary-color); }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .nav-item {
+            color: #99f6e4;
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .sidebar-footer { font-size: 0.8rem; color: #5eead4; text-align: center; }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-header {
+            background: var(--bg-card);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f8fafc;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            width: 320px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-color);
+        }
+
+        /* Page Layout & Tab Switching */
+        .tab-content {
+            display: none;
+            padding: 2rem;
+        }
+
+        .tab-content.active-tab {
+            display: block;
+        }
+
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-outline:hover { background: var(--primary-color); color: #fff; }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .bg-blue { background: #0ea5e9; }
+        .bg-green { background: #10b981; }
+        .bg-purple { background: #8b5cf6; }
+        .bg-orange { background: #f97316; }
+
+        .stat-info h3 { font-size: 1.5rem; }
+        .stat-info p { color: var(--text-muted); font-size: 0.875rem; }
+
+        /* Doctors Grid */
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .doctor-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .doc-avatar {
+            width: 70px; height: 70px;
+            background: #ccfbf1;
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1rem auto;
+        }
+
+        .doctor-card h3 { margin-bottom: 0.25rem; }
+        .spec { color: var(--primary-color); font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .timing { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem; }
+
+        /* Table Styling */
+        .table-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            background: #ccfbf1;
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
+
+        .status {
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-confirmed { background: #d1fae5; color: #047857; }
+        .status-pending { background: #fef3c7; color: #b45309; }
+
+        .action-btn {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 0.4rem;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+        .action-btn.delete:hover { color: #ef4444; }
+
+        /* Form Controls & Modal */
+        .form-group {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+        .form-control:focus { border-color: var(--primary-color); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .close-btn:hover { color: var(--text-color); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-hospital-user"></i>
+                <h2>MediCare<span>.</span></h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" onclick="switchTab(event, 'dashboard-sec')"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="#" class="nav-item" onclick="switchTab(event, 'doctors-sec')"><i class="fa-solid fa-user-doctor"></i> Find Doctors</a>
+                <a href="#" class="nav-item" onclick="switchTab(event, 'appointments-sec')"><i class="fa-solid fa-calendar-check"></i> Appointments</a>
+                <a href="#" class="nav-item" onclick="switchTab(event, 'settings-sec')"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Web Tech Final Project</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="top-header">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" onkeyup="filterDoctors()" placeholder="Search doctors, departments...">
+                </div>
+                <div class="user-profile">
+                    <i class="fa-regular fa-bell icon"></i>
+                    <div class="avatar-container">
+                        <div class="avatar">S</div>
+                        <span class="user-name">Faraz Hussain</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Section -->
+            <section id="dashboard-sec" class="tab-content active-tab">
+                <div class="page-title">
+                    <h1>Patient Dashboard</h1>
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fa-solid fa-plus"></i> Book Appointment</button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-blue"><i class="fa-solid fa-calendar-days"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalAppCount">3</h3>
+                            <p>Total Appointments</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-green"><i class="fa-solid fa-user-doctor"></i></div>
+                        <div class="stat-info">
+                            <h3>24</h3>
+                            <p>Available Doctors</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-purple"><i class="fa-solid fa-bed-pulse"></i></div>
+                        <div class="stat-info">
+                            <h3>120</h3>
+                            <p>Active Patients</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-orange"><i class="fa-solid fa-file-medical"></i></div>
+                        <div class="stat-info">
+                            <h3>15</h3>
+                            <p>Reports Ready</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Appointments Table -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2>Your Recent Appointments</h2>
+                        <span class="badge">Live Status</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="appointmentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Token #</th>
+                                    <th>Patient Name</th>
+                                    <th>Doctor</th>
+                                    <th>Department</th>
+                                    <th>Date & Time</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#APT-101</td>
+                                    <td><strong>Shahzaib Raza</strong></td>
+                                    <td>Dr. Ahmed Khan</td>
+                                    <td>Cardiology</td>
+                                    <td>2026-11-12 | 10:30 AM</td>
+                                    <td><span class="status status-confirmed">Confirmed</span></td>
+                                    <td>
+                                        <button class="action-btn delete" onclick="deleteRow(this)" title="Cancel"><i class="fa-solid fa-trash-can"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#APT-102</td>
+                                    <td>Ali Usman</td>
+                                    <td>Dr. Sara Malik</td>
+                                    <td>Neurology</td>
+                                    <td>2026-11-14 | 02:00 PM</td>
+                                    <td><span class="status status-pending">Pending</span></td>
+                                    <td>
+                                        <button class="action-btn delete" onclick="deleteRow(this)" title="Cancel"><i class="fa-solid fa-trash-can"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Find Doctors Section -->
+            <section id="doctors-sec" class="tab-content">
+                <div class="page-title">
+                    <h1>Our Specialist Doctors</h1>
+                </div>
+                <div class="doctors-grid" id="doctorsGrid">
+                    <div class="doctor-card">
+                        <div class="doc-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                        <h3>Dr. Ahmed Khan</h3>
+                        <p class="spec">Cardiologist (MBBS, FCPS)</p>
+                        <p class="timing"><i class="fa-regular fa-clock"></i> Mon - Fri (09:00 AM - 01:00 PM)</p>
+                        <button class="btn btn-outline" onclick="openModal()">Book Now</button>
+                    </div>
+                    <div class="doctor-card">
+                        <div class="doc-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                        <h3>Dr. Sara Malik</h3>
+                        <p class="spec">Neurologist (MD, MRCP)</p>
+                        <p class="timing"><i class="fa-regular fa-clock"></i> Tue - Sat (02:00 PM - 06:00 PM)</p>
+                        <button class="btn btn-outline" onclick="openModal()">Book Now</button>
+                    </div>
+                    <div class="doctor-card">
+                        <div class="doc-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                        <h3>Dr. Kamran Akmal</h3>
+                        <p class="spec">Orthopedic Surgeon</p>
+                        <p class="timing"><i class="fa-regular fa-clock"></i> Mon - Sat (10:00 AM - 03:00 PM)</p>
+                        <button class="btn btn-outline" onclick="openModal()">Book Now</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Appointments List Section -->
+            <section id="appointments-sec" class="tab-content">
+                <div class="page-title">
+                    <h1>All Appointments Management</h1>
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fa-solid fa-plus"></i> New Booking</button>
+                </div>
+                <div class="table-card">
+                    <p style="color: var(--text-muted);">Complete historical list of hospital checkups handled dynamically.</p>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-sec" class="tab-content">
+                <div class="page-title">
+                    <h1>Account & System Settings</h1>
+                </div>
+                <div class="table-card" style="max-width: 500px;">
+                    <h3>Patient Profile</h3>
+                    <form style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;" onsubmit="saveSettings(event)">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="settingName" value="Shahzaib Raza" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" value="shahzaib@medicare.pk" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Booking Modal Popup -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Book Doctor Appointment</h2>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="bookingForm" onsubmit="addAppointment(event)">
+                <div class="form-group">
+                    <label>Patient Name</label>
+                    <input type="text" id="patientName" required placeholder="Enter full name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Select Doctor</label>
+                    <select id="doctorName" class="form-control">
+                        <option value="Dr. Ahmed Khan (Cardiology)">Dr. Ahmed Khan (Cardiology)</option>
+                        <option value="Dr. Sara Malik (Neurology)">Dr. Sara Malik (Neurology)</option>
+                        <option value="Dr. Kamran Akmal (Orthopedic)">Dr. Kamran Akmal (Orthopedic)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Appointment Date</label>
+                    <input type="date" id="appDate" required class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Time Slot</label>
+                    <select id="appTime" class="form-control">
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="11:30 AM">11:30 AM</option>
+                        <option value="02:30 PM">02:30 PM</option>
+                        <option value="04:00 PM">04:00 PM</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(event, targetId) {
+            event.preventDefault();
+            
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active-tab'));
+
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            document.getElementById(targetId).classList.add('active-tab');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Search Filter Logic
+        function filterDoctors() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.doctor-card');
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                if (text.includes(input)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        // Modal Control
+        function openModal() {
+            document.getElementById('bookingModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+        }
+
+        // Add Appointment Dynamically
+        function addAppointment(event) {
+            event.preventDefault();
+
+            const patient = document.getElementById('patientName').value;
+            const docInfo = document.getElementById('doctorName').value;
+            const date = document.getElementById('appDate').value;
+            const time = document.getElementById('appTime').value;
+
+            const parts = docInfo.split('(');
+            const docName = parts[0].trim();
+            const dept = parts[1] ? parts[1].replace(')', '').trim() : 'General';
+
+            const table = document.getElementById('appointmentsTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+
+            const tokenNo = '#APT-' + Math.floor(100 + Math.random() * 900);
+
+            newRow.innerHTML = `
+                <td>${tokenNo}</td>
+                <td><strong>${patient}</strong></td>
+                <td>${docName}</td>
+                <td>${dept}</td>
+                <td>${date} | ${time}</td>
+                <td><span class="status status-confirmed">Confirmed</span></td>
+                <td>
+                    <button class="action-btn delete" onclick="deleteRow(this)" title="Cancel"><i class="fa-solid fa-trash-can"></i></button>
+                </td>
+            `;
+
+            document.getElementById('bookingForm').reset();
+            closeModal();
+            updateCount();
+            alert('Appointment booked successfully!');
+        }
+
+        // Delete Row and Update Counter
+        function deleteRow(btn) {
+            if (confirm("Are you sure you want to cancel this appointment?")) {
+                const row = btn.parentNode.parentNode;
+                row.parentNode.removeChild(row);
+                updateCount();
+            }
+        }
+
+        function updateCount() {
+            const table = document.getElementById('appointmentsTable');
+            const count = table.rows.length - 1;
+            document.getElementById('totalAppCount').innerText = count + 1;
+        }
+
+        // Save Settings
+        function saveSettings(event) {
+            event.preventDefault();
+            const name = document.getElementById('settingName').value;
+            document.querySelector('.user-name').innerText = name;
+            document.querySelector('.avatar').innerText = name.charAt(0).toUpperCase();
+            alert('Profile settings updated successfully!');
+        }
+    </script>
+</body>
+</html>
